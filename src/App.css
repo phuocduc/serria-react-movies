@@ -1,5 +1,6 @@
 .App {
   text-align: center;
+ background-color:  #545256;
 }
 
 .App-logo {
@@ -19,4 +20,34 @@
 
 .App-link {
   color: #09d3ac;
+}
+
+.card-body{
+  display: flex;
+  flex-direction: column;
+  
+}
+
+.card-body{
+  height: 250px;
+}
+
+.card-text{
+  overflow-y: scroll;
+  height: 96px;
+}
+.card-img-top{
+  height: 429px;
+}
+
+.navbar-genre{
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+
+.navbar-expand-lg{
+  background-color: #3D3C41 !important;
+
 }
