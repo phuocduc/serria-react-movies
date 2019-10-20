@@ -51,3 +51,31 @@
   background-color: #3D3C41 !important;
 
 }
+
+
+
+.navbar-brandd {
+  color:white !important;
+}
+.nav-link {
+  color:white !important;
+}
+
+
+.slider-container{
+  width: 50%;
+  height: 100px;
+  padding: 50px;
+  background-color: lightblue;
+}
+
+.input-range__track{
+  background-color: orange; 
+}
+.input-range__slider{
+  border:2px solid red;
+  background-color: pink; 
+}
+.input-range__track--active{
+  background-color: green; 
+} 

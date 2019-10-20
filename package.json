@@ -8,6 +8,7 @@
     "react-bootstrap": "^1.0.0-beta.14",
     "react-compound-slider": "^2.3.0",
     "react-dom": "^16.10.2",
+    "react-input-range": "^1.3.0",
     "react-scripts": "3.2.0"
   },
   "scripts": {

@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from "react";
 import logo from "./logo.svg";
+import ReactDOM from "react-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
+import InputRange from "react-input-range";
+import 'react-input-range/lib/css/index.css'
 // import slider from './components/slider'
 import "./App.css";
 import {
@@ -18,27 +21,38 @@ const API_KEY = "2b5cc1182a9cf40c96817935d0c4c3ac";
 function Navv(props) {
   return (
     <Navbar bg="light" expand="lg">
-      <Navbar.Brand href="#home">IMDB</Navbar.Brand>
+      <Navbar.Brand className="navbar-brandd" href="#home">
+        IMDB
+      </Navbar.Brand>
       <Navbar.Toggle aria-controls="basic-navbar-nav" />
       <Navbar.Collapse id="basic-navbar-nav">
         <Nav className="mr-auto">
-          <Nav.Link href="#home">Home</Nav.Link>
-          <Nav.Link href="#link">Link</Nav.Link>
-          
-          <NavDropdown title="Category" id="basic-nav-dropdown">
-              Category
-              {props.genres.map(genre => {
-                return (
-                  <NavDropdown.Item onClick={() => props.onclickSearch(genre.id)} >{genre.name}</NavDropdown.Item>
-                );
-              })}
-            </NavDropdown>
-          
-          
+          <Nav.Link
+            className="navbar-brandd"
+            onClick={props.reload}
+            href="#home"
+          >
+            Home
+          </Nav.Link>
+
+          <NavDropdown
+            className="navbar-brandd"
+            title="Category"
+            id="basic-nav-dropdown"
+          >
+            Category
+            {props.genres.map(genre => {
+              return (
+                <NavDropdown.Item onClick={() => props.onclickSearch(genre.id)}>
+                  {genre.name}
+                </NavDropdown.Item>
+              );
+            })}
+          </NavDropdown>
         </Nav>
         <Form inline onChange={e => props.apples(e.target.value)}>
           <FormControl type="text" placeholder="Search" className="mr-sm-2" />
-          <Button onClick={props.btn} type="submit" variant="outline-success">
+          <Button onClick={props.btn} variant="outline-success">
             Search
           </Button>
         </Form>
@@ -48,14 +62,15 @@ function Navv(props) {
 }
 
 function App() {
-  const [state, setState] = useState([]);
+  const [movies, setMovies] = useState([]);
   const [clone, setClone] = useState([]);
   const [page, setLoadPage] = useState(1);
   const [genres, setGenre] = useState([]);
 
   const [query, setQuery] = useState("");
 
-  console.log('12',genres)
+  const [ratingVal, setRatingVal] = useState({ min: 0, max: 10 });
+  // console.log(ratingVal);
 
   const getGenre = async () => {
     let url = `https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}&language=en-US`;
@@ -68,46 +83,72 @@ function App() {
     let url = `https://api.themoviedb.org/3/discover/movie?api_key=${API_KEY}&language=en-US&sort_by=popularity.desc&include_adult=false&include_video=false&page=${page}`;
     let response = await fetch(url);
     let data = await response.json();
-    let newMovies = state.concat(data.results);
-    setState(newMovies);
-    setClone(newMovies)
+    let newMovies = clone.concat(data.results);
+    setMovies(newMovies);
+    setClone(newMovies);
     setLoadPage(page + 1);
   };
 
+  const reload = () => {
+    window.location.reload();
+  };
   const searchMovies = async () => {
     if (!query.trim()) return;
     else {
       let url = `https://api.themoviedb.org/3/search/collection?api_key=${API_KEY}&language=en-US&query=${query}&pages=1`;
       let response = await fetch(url);
       let data = await response.json();
-      setState(data.results);
+      // console.log("data", data);
+      setMovies(data.results);
     }
   };
 
-  const genreSearch= async (id)=>{
+  const genreSearch = async id => {
     // filter by id
     //clone
-    const newarr = clone.filter(el => el.genre_ids.includes(id))
-    setState(newarr)
-  }
+    const newarr = clone.filter(el => el.genre_ids.includes(id));
+    setMovies(newarr);
+  };
 
   useEffect(() => {
     getData();
     getGenre();
   }, []);
+
+  const onRatingSliderChange = val => {
+    const newMovies = clone.filter(movie => {
+      const isAboveMinimumRating = movie.vote_average > val.min;
+      const isBelowMaximumRating = movie.vote_average < val.max;
+      return isAboveMinimumRating && isBelowMaximumRating;
+    });
+    // console.log('newMovies',newMovies)
+    setMovies(newMovies);
+    setRatingVal(val);
+  };
+
   return (
     <div className="App">
-      <Navv genres = {genres}  onclickSearch={genreSearch}   apples={setQuery} btn={() => searchMovies()} />
+      
+      <Navv
+        genres={genres}
+        reload={reload}
+        onclickSearch={genreSearch}
+        apples={setQuery}
+        btn={() => searchMovies()}
+      />
 
       <div className="container-fluid">
         <div className="row">
           <div className="col-3 col-md-3 navbar-genre">
-    
-
+          <InputRange
+              maxValue={10}
+              minValue={0}
+              value={ratingVal}
+              onChange={value => onRatingSliderChange(value)}
+            />
           </div>
           <div className="row col-9 col-md-9 list-movies">
-
-            {state.map(movies => {
+            {movies.map(movies => {
               return (
                 <div className="col-md-4 mt-2">
                   <Card style={{ width: "18rem" }}>
@@ -131,9 +172,12 @@ function App() {
             })}
           </div>
         </div>
-        <Button onClick={() => getData()} variant="primary">
+        <button
+          className="btn btn-outline-primary mt-3"
+          onClick={() => getData()}
+        >
           Load More
-        </Button>
+        </button>
       </div>
     </div>
   );
