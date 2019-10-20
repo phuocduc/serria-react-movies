@@ -79,3 +79,9 @@
 .input-range__track--active{
   background-color: green; 
 } 
+
+.rating-text{
+  max-width: 288px;
+  width: 100%;
+}
+

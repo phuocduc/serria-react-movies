@@ -3,7 +3,8 @@ import logo from "./logo.svg";
 import ReactDOM from "react-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import InputRange from "react-input-range";
-import 'react-input-range/lib/css/index.css'
+import "react-input-range/lib/css/index.css";
+import Moment from 'react-moment';
 // import slider from './components/slider'
 import "./App.css";
 import {
@@ -70,7 +71,7 @@ function App() {
   const [query, setQuery] = useState("");
 
   const [ratingVal, setRatingVal] = useState({ min: 0, max: 10 });
-  // console.log(ratingVal);
+
 
   const getGenre = async () => {
     let url = `https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}&language=en-US`;
@@ -121,14 +122,14 @@ function App() {
       const isBelowMaximumRating = movie.vote_average < val.max;
       return isAboveMinimumRating && isBelowMaximumRating;
     });
-    // console.log('newMovies',newMovies)
+    // console.log('newMovies',val)
     setMovies(newMovies);
     setRatingVal(val);
   };
 
+
   return (
     <div className="App">
-      
       <Navv
         genres={genres}
         reload={reload}
@@ -139,15 +140,25 @@ function App() {
 
       <div className="container-fluid">
         <div className="row">
-          <div className="col-3 col-md-3 navbar-genre">
-          <InputRange
-              maxValue={10}
-              minValue={0}
-              value={ratingVal}
-              onChange={value => onRatingSliderChange(value)}
-            />
+          <div className="col-12 col-md-3 navbar-genre mt-5">
+           
+             
+           
+                <InputRange className="mt-3"
+               
+                  maxValue={10}
+                  minValue={0}
+                  value={ratingVal}
+                  onChange={value => onRatingSliderChange(value)}
+                />
+                <div className="text-center rating-text">Rating</div>
+               
+         
+             
+          
+
           </div>
-          <div className="row col-9 col-md-9 list-movies">
+          <div className="row col-12 col-md-9 list-movies">
             {movies.map(movies => {
               return (
                 <div className="col-md-4 mt-2">
@@ -164,7 +175,7 @@ function App() {
                         Rate: {movies.vote_average} / 10 ({movies.vote_count}{" "}
                         IMDb)
                       </div>
-                      <Button variant="primary">Go somewhere</Button>
+                      <Button variant="primary">Trailer</Button>
                     </Card.Body>
                   </Card>
                 </div>
