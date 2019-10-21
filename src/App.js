@@ -4,9 +4,12 @@ import ReactDOM from "react-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import InputRange from "react-input-range";
 import "react-input-range/lib/css/index.css";
-import Moment from 'react-moment';
+import Moment from "react-moment";
 // import slider from './components/slider'
+import Modal from "react-modal";
+import YouTube from "react-youtube";
 import "./App.css";
+
 import {
   NavDropdown,
   Button,
@@ -16,6 +19,17 @@ import {
   FormControl,
   Card
 } from "react-bootstrap";
+
+const customStyles = {
+  content: {
+    top: "50%",
+    left: "50%",
+    right: "auto",
+    bottom: "auto",
+    marginRight: "-50%",
+    transform: "translate(-50%, -50%)"
+  }
+};
 
 const API_KEY = "2b5cc1182a9cf40c96817935d0c4c3ac";
 
@@ -67,11 +81,11 @@ function App() {
   const [clone, setClone] = useState([]);
   const [page, setLoadPage] = useState(1);
   const [genres, setGenre] = useState([]);
-
   const [query, setQuery] = useState("");
-
   const [ratingVal, setRatingVal] = useState({ min: 0, max: 10 });
 
+  const [isOpenModal, setIsOpenModal] = useState(false);
+  const [keyVideo, setKeyVideo] = useState(null);
 
   const getGenre = async () => {
     let url = `https://api.themoviedb.org/3/genre/movie/list?api_key=${API_KEY}&language=en-US`;
@@ -127,9 +141,33 @@ function App() {
     setRatingVal(val);
   };
 
+  //toggle tat mo modal
+  //getvideo
+  function toggle(id) {
+    if (!isOpenModal) getVideo(id);
+    setIsOpenModal(!isOpenModal);
+  }
 
+  const getVideo = async (id) => {
+    const url = `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${API_KEY}&language=en-US`;
+    const response = await fetch(url);
+    const data = await response.json();
+    setKeyVideo(data.results[Math.floor(Math.random() * data.results.length)].key);
+  };
+
+  console.log(keyVideo);
   return (
     <div className="App">
+      <Modal
+        isOpen={isOpenModal}
+        onRequestClose={toggle}
+        style={customStyles}
+      >
+        <YouTube
+          videoId={keyVideo} // defaults -> null
+          id={keyVideo} // defaults -> null 
+        />
+      </Modal>
       <Navv
         genres={genres}
         reload={reload}
@@ -141,41 +179,40 @@ function App() {
       <div className="container-fluid">
         <div className="row">
           <div className="col-12 col-md-3 navbar-genre mt-5">
-           
-             
-           
-                <InputRange className="mt-3"
-               
-                  maxValue={10}
-                  minValue={0}
-                  value={ratingVal}
-                  onChange={value => onRatingSliderChange(value)}
-                />
-                <div className="text-center rating-text">Rating</div>
-               
-         
-             
-          
-
+            <InputRange
+              className="mt-3"
+              maxValue={10}
+              minValue={0}
+              value={ratingVal}
+              onChange={value => onRatingSliderChange(value)}
+            />
+            <div className="text-center rating-text">Rating</div>
           </div>
           <div className="row col-12 col-md-9 list-movies">
-            {movies.map(movies => {
+            {movies.map(movie => {
               return (
                 <div className="col-md-4 mt-2">
                   <Card style={{ width: "18rem" }}>
                     <Card.Img
                       variant="top"
-                      src={`https://image.tmdb.org/t/p/w500/${movies.poster_path}`}
+                      src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
                     />
                     <Card.Body>
-                      <Card.Title>{movies.title}</Card.Title>
-                      <Card.Text>{movies.overview}</Card.Text>
-                      <div>Release Date: {movies.release_date}</div>
+                      <Card.Title>{movie.title}</Card.Title>
+                      <Card.Text>{movie.overview}</Card.Text>
+                      <div>Release Date: {movie.release_date}</div>
                       <div>
-                        Rate: {movies.vote_average} / 10 ({movies.vote_count}{" "}
+                        Rate: {movie.vote_average} / 10 ({movie.vote_count}{" "}
                         IMDb)
                       </div>
-                      <Button variant="primary">Trailer</Button>
+                      <Button
+                        variant="primary"
+                        onClick={() => {
+                          toggle(movie.id);
+                        }}
+                      >
+                        Trailer
+                      </Button>
                     </Card.Body>
                   </Card>
                 </div>
