@@ -83,6 +83,7 @@ function App() {
   const [genres, setGenre] = useState([]);
   const [query, setQuery] = useState("");
   const [ratingVal, setRatingVal] = useState({ min: 0, max: 10 });
+  const [datingVal, setDatingVal] = useState({ min: 2000, max: 2019 });
 
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [keyVideo, setKeyVideo] = useState(null);
@@ -141,6 +142,20 @@ function App() {
     setRatingVal(val);
   };
 
+
+
+  const onDatingSliderChange = val => {
+    const Dating = clone.filter(movie => {
+      const yearRate = movie.release_date.slice(0,4)
+      const isAboveMinimumDating = yearRate > val.min;
+      const isBelowMaximumDating = yearRate < val.max;
+      
+      return isAboveMinimumDating && isBelowMaximumDating;
+    });
+    setMovies(Dating);
+    setDatingVal(val);
+  };
+
   //toggle tat mo modal
   //getvideo
   function toggle(id) {
@@ -148,24 +163,22 @@ function App() {
     setIsOpenModal(!isOpenModal);
   }
 
-  const getVideo = async (id) => {
+  const getVideo = async id => {
     const url = `https://api.themoviedb.org/3/movie/${id}/videos?api_key=${API_KEY}&language=en-US`;
     const response = await fetch(url);
     const data = await response.json();
-    setKeyVideo(data.results[Math.floor(Math.random() * data.results.length)].key);
+    setKeyVideo(
+      data.results[Math.floor(Math.random() * data.results.length)].key
+    );
   };
 
   console.log(keyVideo);
   return (
     <div className="App">
-      <Modal
-        isOpen={isOpenModal}
-        onRequestClose={toggle}
-        style={customStyles}
-      >
+      <Modal isOpen={isOpenModal} onRequestClose={toggle} style={customStyles}>
         <YouTube
           videoId={keyVideo} // defaults -> null
-          id={keyVideo} // defaults -> null 
+          id={keyVideo} // defaults -> null
         />
       </Modal>
       <Navv
@@ -187,34 +200,49 @@ function App() {
               onChange={value => onRatingSliderChange(value)}
             />
             <div className="text-center rating-text">Rating</div>
+            <hr></hr>
+            <InputRange
+              className="mt-3"
+              maxValue={2019}
+              minValue={2000}
+              value={datingVal}
+              onChange={value => onDatingSliderChange(value)}
+            />
+            <div className="text-center rating-text">Year</div>
           </div>
           <div className="row col-12 col-md-9 list-movies">
             {movies.map(movie => {
               return (
-                <div className="col-md-4 mt-2">
-                  <Card style={{ width: "18rem" }}>
-                    <Card.Img
-                      variant="top"
-                      src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
-                    />
-                    <Card.Body>
-                      <Card.Title>{movie.title}</Card.Title>
-                      <Card.Text>{movie.overview}</Card.Text>
-                      <div>Release Date: {movie.release_date}</div>
-                      <div>
-                        Rate: {movie.vote_average} / 10 ({movie.vote_count}{" "}
-                        IMDb)
+                <div className="col-md-4">
+                  <div class="flip-card">
+                    <div class="flip-card-inner">
+                      <div class="flip-card-front">
+                        <Card.Img
+                          variant="top"
+                          src={`https://image.tmdb.org/t/p/w500/${movie.poster_path}`}
+                        />
                       </div>
-                      <Button
-                        variant="primary"
-                        onClick={() => {
-                          toggle(movie.id);
-                        }}
-                      >
-                        Trailer
-                      </Button>
-                    </Card.Body>
-                  </Card>
+                      <div class="flip-card-back">
+                        <Card.Body>
+                          <Card.Title>{movie.title}</Card.Title>
+                          <Card.Text>{movie.overview}</Card.Text>
+                          <div>Release Date: {movie.release_date}</div>
+                          <div>
+                            Rate: {movie.vote_average} / 10 ({movie.vote_count}{" "}
+                            IMDb)
+                          </div>
+                          <Button
+                            variant="primary"
+                            onClick={() => {
+                              toggle(movie.id);
+                            }}
+                          >
+                            Trailer
+                          </Button>
+                        </Card.Body>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               );
             })}
